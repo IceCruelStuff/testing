@@ -12,7 +12,7 @@
     };
     function start() {
         time = +new Date();
-        for (let i = 0; i < 1000000000001; i++) {
+        for (let i = 0; i < 4000001; i++) {
             connection.send(i);
         }
         console.log(+new Date() - time);

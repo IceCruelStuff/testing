@@ -7,11 +7,11 @@
         data: true
     };
     var time;
-    connection.onopen = function(event) {
-        time = +new Date();
-    };
     connection.onmessage = function(event) {
-        if (event.data === 100000) {
+        if (event.data === 0) {
+            time = +new Date();
+        }
+        if (event.data === 4000000) {
             console.log(+new Date() - time);
         }
     };
