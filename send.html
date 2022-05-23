@@ -1,0 +1,21 @@
+<script src="RTCMultiConnection.js"></script>
+<script src="socket.io.js"></script>
+<script>
+    var connection = new RTCMultiConnection();
+    connection.socketURL = 'https://muazkhan.com:9001/';
+    connection.session = {
+        data: true
+    };
+    var time;
+    connection.onopen = function(event) {
+        start();
+    };
+    function start() {
+        time = +new Date();
+        for (let i = 0; i < 100001; i++) {
+            connection.send(i);
+        }
+        console.log(+new Date() - time);
+    }
+    connection.openOrJoin('Testing01923');
+</script>
