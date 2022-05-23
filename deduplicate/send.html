@@ -1,0 +1,31 @@
+<script src="../RTCMultiConnection.js"></script>
+<script src="../socket.io.js"></script>
+<script type="module">
+    import { Deduplicate } from './deduplicate.js';
+
+    var connection = new RTCMultiConnection();
+    connection.socketURL = 'https://muazkhan.com:9001/';
+    connection.session = {
+        data: true
+    };
+    const deduplicate = new Deduplicate();
+    connection.onmessage = function(event) {
+        try {
+            let message = JSON.parse(event.data);
+            if (deduplicate.check(message['#'])) {
+                return;
+            }
+            deduplicate.track(message['#']);
+            console.log('received message: ', message);
+        } catch (error) {
+        }
+    };
+    connection.openOrJoin('412361234');
+    var count = 0;
+    window.setInterval(function() {
+        count += 1;
+        connection.send(JSON.stringify({
+            '#': deduplicate.track(count)
+        }));
+    }, 1000);
+</script>
