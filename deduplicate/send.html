@@ -1,14 +1,50 @@
 <script src="../RTCMultiConnection.js"></script>
 <script src="../socket.io.js"></script>
 <script type="module">
-    import { Deduplicate } from './deduplicate.js';
-
     var connection = new RTCMultiConnection();
     connection.socketURL = 'https://muazkhan.com:9001/';
     connection.session = {
         data: true
     };
-    const deduplicate = new Deduplicate();
+
+    function Dup() {
+        var dup = { s: {} };
+        var opt = { max: 999, age: 1000 * 9 };
+        dup.check = function(id) {
+            if (!dup.s[id]) {
+                return false
+            }
+            return dup.track(id);
+        }
+        dup.track = function(id) {
+            var it = dup.s[id];
+            if (!it) {
+                dup.s[id] = {};
+                it = {};
+            }
+            it.was = dup.now = +new Date;
+            if (!dup.to) {
+                dup.to = setTimeout(dup.drop, opt.age + 9)
+            }
+            return it;
+        }
+        dup.drop = function(age) {
+            dup.to = null;
+            dup.now = +new Date;
+            var l = Object.keys(dup.s);
+            setTimeout.each(l, function(id) {
+                var it = dup.s[id];
+                if (it && (age || opt.age) > (dup.now - it.was)) {
+                    return
+                }
+                delete dup.s[id];
+            }, 0, 99);
+        }
+        return dup;
+    }
+
+    const deduplicate = Dup();
+
     connection.onmessage = function(event) {
         try {
             let message = JSON.parse(event.data);
